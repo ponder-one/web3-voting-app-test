@@ -2,5 +2,50 @@
 pragma solidity ^0.8.19;
 
 contract Voting {
-    // TODO: Implement voting logic
+    address public owner;
+    bool public votingEnded;
+    struct Candidate {
+        uint id;
+        string name;
+        uint voteCount;
+    }
+    
+    uint public candidatesCount; // Number of candidates
+    mapping(uint => Candidate) public candidates; // Maps candidate ids to Candidates
+    mapping(address => bool) public hasVoted; // Keeps track of whether a user has voted
+
+
+
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+     modifier votingActive() {
+        require(!votingEnded, "Voting has already ended");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender; // Set the contract deployer as the owner
+    }
+
+    // Function to add a candidate
+    function addCandidate(string memory name) public onlyOwner votingActive {
+        candidatesCount++;
+        candidates[candidatesCount] = Candidate(candidatesCount, name, 0);
+    }
+
+    function vote(uint candidateId) public votingActive {
+        require(!hasVoted[msg.sender],"User already voted");
+        require(candidateId>0 && candidateId<=candidatesCount, "Invalid candidate Id");
+        hasVoted[msg.sender]=true;
+        candidates[candidateId].voteCount++;
+    }
+
+    function getVotingResults(uint candidateId) public view returns (uint) {
+        require(candidateId > 0 && candidateId <= candidatesCount, "Invalid candidate ID");
+        return candidates[candidateId].voteCount;
+
+    }
 }
