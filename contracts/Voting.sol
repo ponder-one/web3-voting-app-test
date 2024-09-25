@@ -23,7 +23,6 @@ contract Voting {
         _;
     }
 
-    event CandidateAdded(uint indexed candidateId, string candidateName);
 
     constructor(string[] memory candidateNames) {
         for (uint256 i = 0; i < candidateNames.length; i++) {
@@ -41,7 +40,6 @@ contract Voting {
     function addCandidate(string memory name) public onlyOwner votingActive {
         candidatesCount++;
         candidates[candidatesCount] = Candidate(candidatesCount, name, 0);
-        emit CandidateAdded(candidatesCount, name);
     }
 
     function vote(uint candidateId) public votingActive {
@@ -52,6 +50,9 @@ contract Voting {
         );
         hasVoted[msg.sender] = true;
         candidates[candidateId].voteCount++;
+    }
+    function endVote() public votingActive {
+        votingEnded = true;
     }
 
     function getVotingResults(uint candidateId) public view returns (uint) {
