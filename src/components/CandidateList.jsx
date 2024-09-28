@@ -5,7 +5,7 @@ import Results from "./Results";
 
 const CandidateList = ({candidates, voteForCandidate, hasVoted, isVotingActive, isOwner, endVote}) => {
     const getWinner = ()=>{
-        return candidates.sort((a,b)=> b.voteCount - a.voteCount)[0];
+        return candidates.toSorted((a,b)=> b.voteCount - a.voteCount)[0];
       }
     
     const getTitle=()=>{
@@ -31,7 +31,8 @@ const CandidateList = ({candidates, voteForCandidate, hasVoted, isVotingActive, 
               </span>
             </CandidateInfo>
             <Button
-              onClick={() => voteForCandidate(candidate.id)}
+              onClick={async() => {
+                await voteForCandidate(candidate.id)}}
               disabled={hasVoted || !isVotingActive}
             >
               <span style={{ fontSize: "1rem" }}>
@@ -40,7 +41,7 @@ const CandidateList = ({candidates, voteForCandidate, hasVoted, isVotingActive, 
             </Button>
           </CandidateItem>
         ))}
-        {isOwner&&isVotingActive&&(<EndVoteButton onClick={async ()=>await endVote()}>End Vote</EndVoteButton>)}
+        {isOwner&&isVotingActive&&(<EndVoteButton onClick={async ()=>{await endVote();}}>End Vote</EndVoteButton>)}
       </Container>
     )
 }
