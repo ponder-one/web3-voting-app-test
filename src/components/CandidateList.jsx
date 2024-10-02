@@ -47,7 +47,6 @@ const CandidateList = ({candidates, voteForCandidate, hasVoted, isVotingActive, 
 }
 const Container = styled.div`
   margin-top: 20px;
-  text-align: center;
 `;
 const Title = styled.h2`
     font-size: 1.5rem;
@@ -94,6 +93,8 @@ const Button = styled.button`
 const EndVoteButton = styled(Button)`
     width: 80%;
     font-size: 1.5rem;
+    position: relative;
+    left: 10%;
 `;
 
 export default CandidateList;

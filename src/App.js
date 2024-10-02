@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import styled from "styled-components";
 import Login from "./components/Login";
@@ -10,6 +10,8 @@ function App() {
   const [signer, setSigner] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [account, setAccount] = React.useState(null);
+  const [error, setError] = useState("");
+
   const [
     votingContract,
     isVotingActive,
@@ -19,11 +21,12 @@ function App() {
     fetchCandidates,
     voteForCandidate,
     endVote
-  ]= useVotingContract(provider,signer);
+  ]= useVotingContract(provider,signer, setError);
 
   async function initWallet() {
     if (!window.ethereum) {
       console.error("Metamask is not detected in the browser");
+      setError("Metamask is not detected in the browser")
       return;
     }
     try {
@@ -39,6 +42,7 @@ function App() {
       
     } catch (error) {
       console.error("Error connecting ", error);
+      setError("Error connecting to metamask");
     }
   }
 
@@ -59,7 +63,7 @@ function App() {
     if(accounts.length>0 && accounts[0]!=account){
       console.log(accounts[0]);
       setAccount(accounts[0]);
-      const signer = await provider.getSigner();
+      const signer = await provider?.getSigner();
       setSigner(signer);
 
     }else{
@@ -78,16 +82,27 @@ function App() {
   
 
   return isLoggedIn ? (
+    <>
     <Container>
       <Title>Vote for the best candidate</Title>
+      <Error> {error} </Error>
       <span> You are connected with: {account} </span>
       <CandidateList candidates={candidates} voteForCandidate={voteForCandidate} hasVoted={hasVoted} isVotingActive={isVotingActive} isOwner={isOwner} endVote={endVote}/>
     </Container>
+    </>
   ) : (
+    <>
+          
+
     <Login initWallet = {initWallet}/>
+    <Error> {error} </Error>
+    </>
+
       
   );
+
 }
+
 
 const Container = styled.div`
   display: flex;
@@ -101,6 +116,13 @@ const Title = styled.h1`
   font-size: 2.5rem;
   color: #333;
   text-align: center;
+`;
+
+const Error = styled.h3`
+    font-size: 1.5rem;
+    color: #ff3333;
+    text-align: center;
+
 `;
 
 

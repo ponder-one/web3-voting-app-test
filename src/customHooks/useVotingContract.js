@@ -4,13 +4,15 @@ import { ethers } from "ethers";
 
 
 
-function useVotingContract(provider,signer){
+
+function useVotingContract(provider,signer, setError){
     const [votingContract, setVotingContract] = React.useState(null);
     const [owner, setOwner] = React.useState(false);
     const [isVotingActive, setIsVotingActive] = React.useState(true);
     const [hasVoted, setHasVoted] = React.useState(false);
     const [isOwner, setIsOwner] = React.useState(false);
     const [candidates, setCandidates] = React.useState([]);
+
 
     const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your deployed contract address
 
@@ -34,6 +36,7 @@ function useVotingContract(provider,signer){
                     
                 } catch (error) {
                     console.error(error);
+                    setError("An error occurred. please try again later.")
                     
                 }
                 
@@ -65,6 +68,7 @@ function useVotingContract(provider,signer){
             setHasVoted(hasVoted);
             
         } catch (error) {
+          setError("An error occurred. please try again later.")
             console.error(error);
 
         }
@@ -72,13 +76,21 @@ function useVotingContract(provider,signer){
     }
 
     const isUserOwner= async(signer)=>{
-        const address = await signer.getAddress();
+      try {
+         const address = await signer.getAddress();
         if(owner==address){
             setIsOwner(true);
           }else{
             setIsOwner(false);
 
           }
+        
+      } catch (error) {
+        setError("An error occurred. please try again later.")
+
+        
+      }
+       
 
     }
 
@@ -96,6 +108,8 @@ function useVotingContract(provider,signer){
          
         } catch (error) {
           console.error("error fetching candidates", error);
+          setError("An error occurred. please try again later.")
+
         }
       };
 
@@ -107,6 +121,7 @@ function useVotingContract(provider,signer){
           await transaction.wait()
           setHasVoted(true);
         } catch (err) {
+          setError("An error occurred. please try again later.")
           console.error(err);
         }
       };
@@ -121,6 +136,7 @@ function useVotingContract(provider,signer){
           setIsVotingActive(false);
     
         } catch (err) {
+          setError("An error occurred. please try again later.")
           console.error(err);
           
         }
