@@ -5,14 +5,16 @@ contract Voting {
     address public owner;
     bool public votingEnded;
     struct Candidate {
-        uint id;
+        uint32 id; // Reduced size
         string name;
-        uint voteCount;
+        uint32 voteCount;
     }
 
-    uint public candidatesCount; // Number of candidates
-    mapping(uint => Candidate) public candidates; // Maps candidate ids to Candidates
-    mapping(address => bool) public hasVoted; // Keeps track of whether a user has voted
+    uint32 public candidatesCount;
+    mapping(uint32 => Candidate) public candidates; 
+    mapping(address => bool) public hasVoted;
+    event CandidateAdded(uint32 indexed id, string name);
+    event Voted(address indexed voter, uint32 candidateId);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can perform this action");
@@ -25,7 +27,7 @@ contract Voting {
 
 
     constructor(string[] memory candidateNames) {
-        for (uint256 i = 0; i < candidateNames.length; i++) {
+        for (uint32 i = 0; i < candidateNames.length; i++) {
         candidatesCount++; 
         candidates[candidatesCount] = Candidate({
             id: candidatesCount,
@@ -40,9 +42,11 @@ contract Voting {
     function addCandidate(string memory name) public onlyOwner votingActive {
         candidatesCount++;
         candidates[candidatesCount] = Candidate(candidatesCount, name, 0);
+        //emits event whenever candidate is added
+        emit CandidateAdded(candidatesCount, name);
     }
 
-    function vote(uint candidateId) public votingActive {
+    function vote(uint32 candidateId) public votingActive {
         require(!hasVoted[msg.sender], "User already voted");
         require(
             candidateId > 0 && candidateId <= candidatesCount,
@@ -50,12 +54,15 @@ contract Voting {
         );
         hasVoted[msg.sender] = true;
         candidates[candidateId].voteCount++;
+
+        // Emit the Voted event
+    emit Voted(msg.sender, candidateId);
     }
     function endVote() public votingActive {
         votingEnded = true;
     }
 
-    function getVotingResults(uint candidateId) public view returns (uint) {
+    function getVotingResults(uint32 candidateId) public view returns (uint32) {
         require(
             candidateId > 0 && candidateId <= candidatesCount,
             "Invalid candidate ID"
@@ -66,7 +73,7 @@ contract Voting {
     // Function to get all candidates
     function getAllCandidates() public view returns (Candidate[] memory) {
         Candidate[] memory candidateList = new Candidate[](candidatesCount);
-        for (uint i = 1; i <= candidatesCount; i++) {
+        for (uint32 i = 1; i <= candidatesCount; i++) {
             candidateList[i - 1] = candidates[i];
         }
         return candidateList;
